@@ -27,7 +27,7 @@ export const Notes = ({
       {notesArray?.map((note: TNote, index: number) => (
         <Note
           {...note}
-          index={index}
+          key={index}
           handleOnDrag={handleOnDrag}
           priority={note.priority}
         />

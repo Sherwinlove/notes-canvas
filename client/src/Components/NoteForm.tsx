@@ -1,8 +1,22 @@
-import { useState } from "react";
+import {
+  ChangeEvent,
+  ChangeEventHandler,
+  DetailedHTMLProps,
+  ReactEventHandler,
+  SelectHTMLAttributes,
+  SyntheticEvent,
+  useState,
+} from "react";
 import { useRecoilState } from "recoil";
 import { userNotesStateAtom } from "../recoil/atom/userNotesStateAtom";
 
-export function NoteForm({ isVisible, setIsVisible }: any) {
+export function NoteForm({
+  isVisible,
+  setIsVisible,
+}: {
+  isVisible: boolean;
+  setIsVisible: React.Dispatch<boolean>;
+}) {
   const [noteName, setNoteName] = useState<string>("");
   const [notePriority, setNotePriority] = useState<number>(0);
   const [_, setNotesList] = useRecoilState(userNotesStateAtom);
@@ -10,9 +24,9 @@ export function NoteForm({ isVisible, setIsVisible }: any) {
   const handleFormSubmit = (event: any) => {
     event.preventDefault();
     if (noteName.length > 1) {
-      setNotesList((oldNotes: any) => [
+      setNotesList((oldNotes: any): any => [
         ...oldNotes,
-        { name: noteName, priority: +notePriority },
+        { id: Date.now(), name: noteName, priority: notePriority },
       ]);
       setNoteName("");
       setNotePriority(0);
@@ -22,13 +36,20 @@ export function NoteForm({ isVisible, setIsVisible }: any) {
     }
   };
 
-  const handleNameOnChange = (event: any) => {
+  const handleNameOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNoteName(event.target.value);
   };
 
-  const handlePriorityOnChange = (event: any) => {
-    setNotePriority(event.target.value);
+  const handlePriorityOnChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const priority = Number(event.target.value);
+    if (!isNaN(priority)) {
+      setNotePriority(priority);
+    }
   };
+
+  console.log(typeof notePriority);
 
   return (
     <div className="flex flex-col text-left bg-neutral-900 space-y-4 text-white pt-8 pb-2 px-4 rounded-xl shadow-xl">
