@@ -1,93 +1,135 @@
 import "./App.css";
-import { useEffect, useState } from "react";
-import FloatingInfoBar from "./Components/FloatingInfoBar";
-import { useRecoilState } from "recoil";
-import { userNotesStateAtom } from "./recoil/atom/userNotesStateAtom";
-import DescriptionIcon from "@mui/icons-material/Description";
+import "react-toastify/dist/ReactToastify.css";
+import { useEffect, useState, useRef } from "react";
 import NoteForm from "./Components/NoteForm";
+import Toast from "./Components/Toast";
+import axios from "axios";
+import DeleteNote from "./Components/DeleteNote";
+import AddNote from "./Components/AddNote";
+import ResetNotesButton from "./Components/ResetNotesButton";
+import UserHeaderUI from "./Components/UserHeaderUI";
 import { Notes } from "./Components/Notes";
+import { toast } from "react-toastify";
 
-type RawNote = {
-  name: string;
-  priority: number;
-};
+declare global {
+  interface Window {
+    reload: any;
+  }
+}
 
 export type TNote = {
   name: string;
   priority: number;
-  id: number | string;
-  startingPosition: {
-    x: number | null;
-    y: number | null;
-  };
-  currentPosition: {
-    x: number | null;
-    y: number | null;
-  };
+  _id?: number | string;
+  parentRef?: any;
 };
 
+export const URL = "http://localhost:6969";
+
 function App() {
-  const [currentNotes, setNotesList] = useRecoilState(userNotesStateAtom);
   const [isVisible, setIsVisible] = useState(false);
   const [notesArray, setNotesArray] = useState<TNote[]>([]);
-  const handleCreateNote = () => {
+  const parentRef = useRef<React.LegacyRef<HTMLDivElement> | any>();
+
+  const API = {
+    addNote: async (name: string, priority: number) => {
+      return await axios.post(`${URL}/api/post`, {
+        name,
+        priority,
+      });
+    },
+    deleteNote: async (id: string) => {
+      return await axios.post(`${URL}/api/delete`, { id });
+    },
+  };
+
+  const handleShowNoteForm = () => {
     setIsVisible(!isVisible);
   };
 
-  const handleOnClose = (e: any): void => {
-    if (e.target.id === "modal-container") {
+  const handleFormOnClose = (event: any) => {
+    if (event.target.id === "modal-container") {
       setIsVisible(!isVisible);
     }
   };
 
+  const addNote = (note: any) => {
+    setNotesArray((prev) => (prev.length === 0 ? [note] : [...prev, note]));
+  };
+
+  const handleToast: any = () => {
+    console.log("Toasted");
+    toast("📝 New Note Created!");
+  };
+
+  // Drags
+  const dragOver: any = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.getData("noteId");
+    console.log("Over");
+  };
+
+  const dragStart: any = (
+    event: React.DragEvent<HTMLDivElement>,
+    id: string
+  ) => {
+    // event.dataTransfer.setData('text', id);
+    console.log(`Started dragging ${id}.`);
+  };
+
+  const dragDrop: any = (event: React.DragEvent<HTMLDivElement>) => {
+    console.log("Dropped");
+  };
+
+  const init = async () => {
+    const data = await axios.get(`${URL}/api/getAll`);
+    setNotesArray(data.data);
+  };
+
   useEffect(() => {
-    const rawNotes: RawNote[] = currentNotes;
-    const formattedNotes: TNote[] = rawNotes.map((note, index) => ({
-      ...note,
-      id: index,
-      startingPosition: { x: null, y: null },
-      currentPosition: { x: 0, y: 0 },
-    }));
-
-    // TODO: For every div store starting position
-
-    console.log("your mom lol");
-    setNotesArray(formattedNotes);
-  }, [currentNotes]);
+    init();
+  }, []);
 
   const form = (
     <div
       id="modal-container"
-      onClick={handleOnClose}
+      onClick={handleFormOnClose}
       className="fixed flex flex-col w-screen h-screen align-center items-center justify-center inset-0 bg-white drop-shadow-xl bg-black bg-opacity-30 backdrop-blur-sm z-70"
     >
-      <NoteForm isVisible={isVisible} setIsVisible={setIsVisible} />
+      <NoteForm
+        isVisible={isVisible}
+        setIsVisible={setIsVisible}
+        handleToast={handleToast}
+        handleAddNote={API.addNote}
+        addNote={addNote}
+        init={init}
+      />
     </div>
   );
 
+  const handleResetNotesPosition: any = () => {
+    window.location.reload();
+  };
+
   return (
-    <div className="App relative p-8 h-screen flex flex-col justify-center items-center">
-      <Notes notesArray={notesArray} setNotes={setNotesArray} />
-      <div className="absolute top-0 flex items-center py-8 justify-center flex-col space-y-8">
-        <div className="mx-2">
-          <FloatingInfoBar notesArray={notesArray} />
-        </div>
-        <div>
-          <button
-            onClick={() => handleCreateNote()}
-            className="flex align-center items-center text-bold text-slate-400 hover:text-slate-500 rounded-xl text-xl"
-          >
-            <DescriptionIcon className="mx-2" />
-            Create Task
-          </button>
-        </div>
-      </div>
+    <div
+      className="App relative p-8 h-screen flex justify-center items-center"
+      ref={parentRef}
+    >
+      <Notes
+        notesArray={notesArray}
+        parentRef={parentRef}
+        dragStart={dragStart}
+      />
+      <UserHeaderUI
+        notesArray={notesArray}
+        handleShowNoteForm={handleShowNoteForm}
+      />
       {isVisible && form}
-      <div className="absolute bottom-0 py-8">
-        <button className="flex align-center items-center text-bold text-slate-400 hover:text-slate-500 rounded-xl text-lg">
-          Reset tasks position
-        </button>
-      </div>
+      <ResetNotesButton handleResetNotesPosition={handleResetNotesPosition} />
+      <Toast />
+      <DeleteNote dragOver={dragOver} />
+      <AddNote dragOver={dragOver} />
     </div>
   );
 }

@@ -3,33 +3,32 @@ import Note from "./Note";
 
 export const Notes = ({
   notesArray,
-  setNotes,
+  parentRef,
+  dragStart,
 }: {
   notesArray: TNote[];
-  setNotes: React.Dispatch<TNote[]>;
+  parentRef: any;
+  dragStart: any;
 }) => {
-  const handleOnDrag = (
-    position: { x: number; y: number },
-    id: number | string
-  ) => {
-    const { x, y } = position;
-    const updatedNotesArray = [...notesArray].map((note) =>
-      note.id === id ? { ...note, currentPosition: { x, y } } : note
-    );
-
-    setNotes(updatedNotesArray);
+  const testFn = (event: any) => {
+    console.log({ x: event.clientX, y: event.clientY });
   };
 
-  console.log(notesArray);
+  // const handleOnDragStart = (event: any) => {
+  //   console.log("Dragging these nuts across your browser.");
+  // };
 
   return (
-    <div className="space-y-2">
-      {notesArray?.map((note: TNote, index: number) => (
+    <div className="flex flex-row w-2/3 justify-center flex-wrap m-auto">
+      {notesArray?.map((note: TNote, index: number, _id) => (
         <Note
           {...note}
-          key={index}
-          handleOnDrag={handleOnDrag}
+          index={index}
           priority={note.priority}
+          testFn={testFn}
+          id={note._id}
+          parentRef={parentRef}
+          dragStart={dragStart}
         />
       ))}
     </div>
