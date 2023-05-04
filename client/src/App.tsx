@@ -128,8 +128,6 @@ function App() {
       {isVisible && form}
       <ResetNotesButton handleResetNotesPosition={handleResetNotesPosition} />
       <Toast />
-      <DeleteNote dragOver={dragOver} />
-      <AddNote dragOver={dragOver} />
     </div>
   );
 }
