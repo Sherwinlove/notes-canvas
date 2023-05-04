@@ -22,7 +22,7 @@ function NoteForm({
   const handleFormSubmit = (event: any) => {
     event.preventDefault();
     if (noteName.length > 1 && notePriority != 0) {
-      console.log("note");
+      console.log("Note created!");
       handleAddNote(noteName, notePriority).then(({ data }: any) => {
         if (data != null) {
           addNote(data);

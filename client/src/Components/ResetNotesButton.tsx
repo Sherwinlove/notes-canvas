@@ -1,9 +1,9 @@
 function ResetNotesButton({ handleResetNotesPosition }: any) {
   return (
-    <div className="absolute bottom-0 py-8">
+    <div className="py-4">
       <button
         onClick={handleResetNotesPosition}
-        className="flex align-center items-center text-bold text-slate-400 hover:text-slate-500 rounded-xl text-lg"
+        className="flex justify-center text-bold text-slate-400 hover:text-slate-500 rounded-xl text-md m-auto"
       >
         Reset notes position
       </button>
