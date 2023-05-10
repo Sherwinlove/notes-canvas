@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { RefObject, useState } from "react";
+import { RefObject } from "react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 
@@ -48,6 +48,7 @@ export const StyledNote = ({
           <CancelIcon
             fontSize="large"
             className="text-red-50 hover:text-red-500"
+            onClick={() => handleDeleteNote(id)}
           />
         </motion.div>
         <div className="mx-2">{children}</div>

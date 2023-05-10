@@ -55,9 +55,11 @@ router.patch("/update/:id", async (req, res) => {
 
 // DELETE_BY_ID Method
 router.delete("/delete/:id", async (req, res) => {
+  console.log(req)
   try {
     const id = req.params.id;
     const data = await Model.findByIdAndDelete(id);
+    console.log(data)
     res.send(`Your "${data.name}" note has been deleted...`);
   } catch (error) {
     res.status(400).json({ message: error.message });
