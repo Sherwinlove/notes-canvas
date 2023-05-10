@@ -38,7 +38,11 @@ function App() {
       });
     },
     deleteNote: async (id: string) => {
-      return await axios.post(`${URL}/api/delete`, { id });
+      console.log({ id });
+      const data = await axios.delete(`${URL}/api/delete/${id}`);
+      if (data.status === 200) {
+        handleDeleteNote(id);
+      }
     },
   };
 
@@ -50,6 +54,11 @@ function App() {
     if (event.target.id === "modal-container") {
       setIsVisible(!isVisible);
     }
+  };
+
+  const handleDeleteNote = (id: string) => {
+    const filteredArray = [...notesArray].filter((note) => note._id !== id);
+    setNotesArray(filteredArray);
   };
 
   const addNote = (note: TNote) => {
@@ -91,6 +100,8 @@ function App() {
     window.location.reload();
   };
 
+  console.log(notesArray);
+
   return (
     <div
       className="App relative p-8 h-screen flex justify-center items-center"
@@ -104,15 +115,13 @@ function App() {
           notesArray={notesArray}
           parentRef={parentRef}
         />
-        <div id="button-container" className="mt-24">
-          <AddNoteButton
-            notesArray={notesArray}
-            handleShowNoteForm={handleShowNoteForm}
-          />
-          <ResetNotesButton
-            handleResetNotesPosition={handleResetNotesPosition}
-          />
-        </div>
+      </div>
+      <div id="button-container" className="absolute bottom-0 pb-8 mt-24">
+        <AddNoteButton
+          notesArray={notesArray}
+          handleShowNoteForm={handleShowNoteForm}
+        />
+        <ResetNotesButton handleResetNotesPosition={handleResetNotesPosition} />
       </div>
       {isVisible && form}
     </div>
